@@ -1,0 +1,8 @@
+*.pyc
+
+*.log
+*.pdf
+*.aux
+*.out
+
+*un~
