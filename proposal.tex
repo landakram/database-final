@@ -66,18 +66,61 @@
 
     \section*{Relational Model}
     \begin{verbatim}
-User(*uid, name, email)
+User(*uid, name, email, password)
 Coach(*uid, salary)
 Athlete(*uid, weight, height)
 coaches(*uid, *tid, since)
-Team(*tid, sport)
+Team(*tid, name, mascot)
+Sport(*sid, name, season)
+plays(*tid, *sid)
 member_of(*uid, *tid, position, number)
 Workout(*wid)
 Exercise(*eid, name)
 consists_of(*wid, *eid, sets, reps)
-assigns(*uid, *wid, date_assigned)
+assigns(*uid, *wid, *date_assigned)
 does(*uid, *wid, date_done)
-performance(*uid, *eid, *date_performed, reps_performed, max_weight)
+performance(*uid, *eid, *date_performed, *reps_performed, max_weight)
     \end{verbatim}
 {\tt *} denotes a primary key.
+
+\section{Functional Dependencies}
+
+We have identified three violations of BCNF in our relational model. 
+
+First, let us consider the Team relation.  We observed that a team with a given name 
+will have a given mascot (for instance, a team named ``The Ducks'' will have a mascot ``Duck'',
+while a team named ``The Lions'' will have a mascot ``Lion''). Thus there is a 
+functional dependency from name to mascot. Thus we decompose Team into two relations:
+Team(tid, name) and TeamMascot(name, mascot). This eliminates the functional dependency
+in Team. For TeamMascot, we have a FD from name $\to$ mascot, but since name is a key,
+the relation is in BCNF. Thus both relations are in BCNF.
+
+Next we consider the Sport relation. We observed that for the sports we deal with, the same 
+sports are always in the same season. Thus there is a functional dependency from a sport's
+name to its season. Thus we decompose Sport into two relations: Sport(sid, name) and 
+SportSeason(name, season). This eliminates the FD in Sport. SportSeason has a FD from
+name to season, but since name is a key, SportSeason is in BCNF. Thus both relations 
+are in BCNF. 
+
+Thus our final set of relations is:
+    \begin{verbatim}
+User(*uid, name, email, password)
+Coach(*uid, salary)
+Athlete(*uid, weight, height)
+coaches(*uid, *tid, since)
+Team(*tid, name)
+TeamMascot(*name, mascot)
+Sport(*sid, name)
+SportSeason(*name, season)
+plays(*tid, *sid)
+member_of(*uid, *tid, position, number)
+Workout(*wid)
+Exercise(*eid, name)
+consists_of(*wid, *eid, sets, reps)
+assigns(*uid, *wid, *date_assigned)
+does(*uid, *wid, date_done)
+performance(*uid, *eid, *date_performed, *reps_performed, max_weight)
+    \end{verbatim}
+
 \end{document}
+
