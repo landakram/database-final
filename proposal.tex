@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage[colorlinks=true]{hyperref}
+\usepackage{pdfpages}
 
 %\usepackage{titling}
 %\setlength{\droptitle}{-10em}
@@ -61,7 +62,22 @@
     essentially identical to {\tt JDBC}.
 
     \section*{ER Diagram}
-    ER Diagram included here.
-    %\includegraphics{erdiagram.pdf}
+    \includepdf{erdiagram.pdf}
 
+    \section*{Relational Model}
+    \begin{verbatim}
+User(*uid, name, email)
+Coach(*uid, salary)
+Athlete(*uid, weight, height)
+coaches(*uid, *tid, since)
+Team(*tid, sport)
+member_of(*uid, *tid, position, number)
+Workout(*wid)
+Exercise(*eid, name)
+consists_of(*wid, *eid, sets, reps)
+assigns(*uid, *wid, date_assigned)
+does(*uid, *wid, date_done)
+performance(*uid, *eid, *date_performed, reps_performed, max_weight)
+    \end{verbatim}
+{\tt *} denotes a primary key.
 \end{document}
