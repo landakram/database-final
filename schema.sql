@@ -38,8 +38,9 @@ CREATE TABLE `TeamMascot` (
 );
 
 CREATE TABLE `Team` (
-    tid INTEGER NOT NULL,
+    tid INTEGER NOT NULL AUTO_INCREMENT,
     name VARCHAR(128) NOT NULL,
+    hometown VARCHAR(128),
     PRIMARY KEY (tid),
     FOREIGN KEY (name) REFERENCES TeamMascot (name)
         ON DELETE NO ACTION
