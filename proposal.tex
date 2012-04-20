@@ -75,7 +75,7 @@ Sport(*sid, name, season)
 plays(*tid, *sid)
 member_of(*uid, *tid, position, number)
 Workout(*wid)
-Exercise(*eid, name)
+Exercise(*eid, name, muscle_group)
 consists_of(*wid, *eid, sets, reps)
 assigns(*uid, *wid, *date_assigned)
 does(*uid, *wid, date_done)
@@ -102,6 +102,8 @@ SportSeason(name, season). This eliminates the FD in Sport. SportSeason has a FD
 name to season, but since name is a key, SportSeason is in BCNF. Thus both relations 
 are in BCNF. 
 
+Our final violation of BCNF is in the Exercise relation.  We have a functional dependency from name to muscle\underline{\hspace{2mm}}group because we have determined that any exercises with the same name will work the same muscle groups.  For example, "bench press" will always work "chest" and "squats" will always work "legs", so we need to decompose this relation to put it in BCNF.  The result of our decomposition will be two tables Exercise(eid, name) and ExerciseMuscles(name, muscle\underline{\hspace{2mm}}group), eliminating the FD in Exercise and moving it to ExerciseMuscles, where since name is a key, the relation is BCNF.
+
 Thus our final set of relations is:
     \begin{verbatim}
 User(*uid, name, email, password)
@@ -116,6 +118,7 @@ plays(*tid, *sid)
 member_of(*uid, *tid, position, number)
 Workout(*wid)
 Exercise(*eid, name)
+ExerciseMuscles(*name, muscle_group)
 consists_of(*wid, *eid, sets, reps)
 assigns(*uid, *wid, *date_assigned)
 does(*uid, *wid, date_done)

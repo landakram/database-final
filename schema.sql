@@ -9,7 +9,7 @@ USE samMarkSports;
 CREATE TABLE `User` (
     uid INTEGER AUTO_INCREMENT NOT NULL,
     name VARCHAR(128),
-    email VARCHAR(128),
+    email VARCHAR(128) UNIQUE,
     password VARCHAR(128),
     PRIMARY KEY (uid)
 );
@@ -68,10 +68,17 @@ CREATE TABLE `Workout` (
         ON DELETE NO ACTION
 );
 
+CREATE TABLE `ExerciseMuscles` (
+    name VARCHAR(128),
+    muscle_group VARCHAR(32),
+    PRIMARY KEY (name)
+);
+
 CREATE TABLE `Exercise` (
     eid INTEGER AUTO_INCREMENT NOT NULL,
     name VARCHAR(128),
-    PRIMARY KEY (eid)
+    PRIMARY KEY (eid),
+    FOREIGN KEY (name) REFERENCES TeamMascot (name)
 );
 
 CREATE TABLE `coaches` (
