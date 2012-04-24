@@ -41,10 +41,10 @@ if __name__ == '__main__':
     for uid in range(11, 501):
         insert_member_of(uid, tid.next())
     # match teams with sports, match coaches with teams
-    sp = circular([a for (a,b) in sports])
+    sid = circular(range(1,11))
     cs = circular(range(1,11))
     for tid in range(1, 36):
-        insert_plays(tid, sp.next())
+        insert_plays(tid, sid.next())
         insert_coaches(cs.next(), tid)
 
 
