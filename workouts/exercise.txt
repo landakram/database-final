@@ -1,0 +1,62 @@
+Bench Press
+Chest
+
+Pushups
+Chest
+
+Pullups
+Chest
+
+Crunches
+Core
+
+Planks
+Core
+
+Squats
+Legs
+
+Power Cleans
+Full Body
+
+Lunges
+Legs
+
+Side Lunges
+Legs
+
+Power Jerks
+Full Body
+
+Hang Cleans
+Full Body
+
+DB Squats
+Legs
+
+Incline Bench Press
+Chest
+
+Decline Bench Press
+Chest
+
+DB Bench Press
+Chest
+
+DB Cleans
+Full Body
+
+Deadlift
+Legs
+
+Snatch
+Full Body
+
+DB Snatch
+Full Body
+
+Front Squats
+Legs
+
+Upright Rows
+Chest
