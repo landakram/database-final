@@ -1,5 +1,5 @@
-def user(name, email, password):
-    print 'INSERT INTO User VALUES ("%s", "%s", "%s");' % (name, email, password) 
+def user(id, name, email, password):
+    print 'INSERT INTO User VALUES (%s, "%s", "%s", "%s");' % (id, name, email, password) 
 
 def coach(uid, salary):
     print 'INSERT INTO Coach VALUES (%s, %s);' % (uid, salary) 
@@ -16,7 +16,7 @@ with open('everyone.txt') as f:
             email = f.next().strip()
             pw = f.next().strip()
             role = f.next().strip()
-            user(name, email, pw)
+            user(uid, name, email, pw)
             if role == 'Coach':
                 sal = f.next().strip()
                 coach(uid, sal)

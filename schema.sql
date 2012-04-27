@@ -77,9 +77,10 @@ CREATE TABLE `ExerciseMuscles` (
 
 CREATE TABLE `Exercise` (
     eid INTEGER AUTO_INCREMENT NOT NULL,
-    name VARCHAR(128),
+    name VARCHAR(128) NOT NULL,
     PRIMARY KEY (eid),
-    FOREIGN KEY (name) REFERENCES TeamMascot (name)
+    FOREIGN KEY (name) REFERENCES ExerciseMuscles (name)
+        ON DELETE NO ACTION
 );
 
 CREATE TABLE `coaches` (
