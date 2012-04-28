@@ -10,7 +10,7 @@ CREATE TABLE `User` (
     uid INTEGER AUTO_INCREMENT NOT NULL,
     name VARCHAR(128),
     email VARCHAR(128) UNIQUE,
-    password VARCHAR(128),
+    password VARCHAR(54),
     PRIMARY KEY (uid)
 );
 

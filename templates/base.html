@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{% block title %}Athletics Organizer{% endblock %}</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="/static/bootstrap.min.js"></script>
+{% block script %}{% endblock %}
+<link href="/static/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<!--<link href="/static/custom.css" rel="stylesheet" type="text/css"/>-->
+<style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+</style>
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="{{ url_for('index') }}">Athletics Organizer</a>
+            <div class="nav-collapse">
+                <!--<ul class="nav">-->
+                    <!--<li>-->
+                    <!--<a href="{{ url_for('stats') }}">Stats</a>-->
+                    <!--</li>-->
+                <!--</ul>-->
+                {% if session.get('user_id') %}
+                <p class="navbar-text pull-right"><a href="{{ url_for('logout') }}">Logout</a></p>
+                {% endif %}
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+{% block content %}
+{% endblock content %}
+</body>
+</html>
