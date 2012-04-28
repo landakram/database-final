@@ -1,5 +1,5 @@
-Athletic Organizer
-=================
+Athletics Organizer
+===================
 
 Mark and Sam's awesome Database Systems final project.
 
