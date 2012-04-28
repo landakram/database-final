@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{pdfpages}
+
+\begin{document}
+
+\begin{center}
+\textbf{Database Systems - Final Project \\
+        Progress Report 4/12 \\
+        Mark Hudnall and Sam Konowitch
+        }
+\end{center}
+
+We have been making good progress on our project. We have finished our ER diagram, 
+converted it to a relational model, normalized our tables and implemented the 
+finalized relational model as a {\tt sql } file, {\tt schema.sql}. Our original
+relational model yielded 14 relations. After normalization, our finalized design
+now has 16 tables. We are a little concerned that we did not have enough functional
+dependencies in our original design, as we performed decomposition on only two tables.
+We are brainstorming different fields to add to our relations that would make for
+more difficult decompositions and a more robust model of athletic teams and workouts. 
+
+We may schedule a meeting early next week (or send you an email) if we rack our brains
+and don't come up with anything non-trivial. We do have a good amount of tables, but 
+we're not sure if our schema/normalization is complex enough.
+
+That said, we have implemented the schema in SQL and created our database without errors.
+Moving forward, we both have some extra time this weekend. We hope first to do  
+some brainstorming to make our schema more robust, so we can show off some more 
+complex decompositions. We'll then begin working on our web component (still this weekend).
+By April 16, we hope to complete the interface for coaches and general user registration. 
+We do not think that the web programming will be particularly difficult, as we both
+have some experience with web programming.
+
+Additionally, we said during our meeting that we were deciding between Python and Java for
+our server language. We have decided to use Python, with a simple web framework called
+Flask. We both have experience with Python and Flask. Flask is also very easy to get up 
+and running with.  For our database interfacing, we are using a module called mysql-python, 
+which is very similar to JDBC. We will provide detailed instructions on how to install and run
+our server environment on a local machine (Python makes it very easy with the {\tt pip} tool). 
+
+Although we have spent some time designing our schema, we think that the web programming
+portion of the project will be straightforward (we both used Python and web frameworks
+for last weekend's hackathon, so we're feeling pretty comfortable with these tools). 
+We would love feedback on our database design, and especially the decompositions, but 
+bear in mind that we plan to expand our design and incorporate more FDs and decompositions
+to make our application more robust. 
+
+We're also using Github to version control, so you can check out our schema, ER diagram, 
+and project proposal (where we have been documenting our efforts) 
+\href{https://github.com/landakram/database-final}{here}. This document will likely be 
+incorporated into the proposal in the near future.
+
+
+\end{document}
