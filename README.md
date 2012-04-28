@@ -36,11 +36,11 @@ you should see something like:
 7. To install the required dependencies for this project in one fell swoop,
 `cd` to the project root and then run:
 
-        $ pip install -r requirements.txt
+        (database-final) $ pip install -r requirements.txt
 
 8. Now run the server:
 
-        $ python app.py
+        (database-final) $ python app.py
         * Running on http://127.0.0.1:5000/
 
 The server should now be running on port 5000.
