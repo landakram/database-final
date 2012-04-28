@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class='row'>
+<div class='span8 offset2'>
+<h1>Athletics Organizer</h1>
+
+{% include "flashes.html" %}
+
+<form class='form-horizontal' id="login" action="{{url_for('login')}}" method="post">
+<fieldset>
+    <legend>Login</legend>
+    <input type="text" name="email" class="input-large" placeholder="Email Address"><br />
+    <input type="password" name="password" class="input-large" placeholder="Password"><br />
+    <button type="submit" class="btn">Sign in</button>
+</fieldset>
+</form>
+
+<form class="form-horizontal" id="register" action="{{url_for('register')}}" method="post">
+<fieldset>
+    <legend>Register</legend>
+    <input type="text" name="name" class="input-large" placeholder="Name"><br />
+    <input type="text" name="email" class="input-large" placeholder="Email Address"><br />
+    <input type="password" name="password" class="input-large" placeholder="Password"><br />
+
+    <select id="user_type" name="type">
+        <option value="athlete" selected="selected">Athlete</option>
+        <option value="coach">Coach</option>
+    </select>
+
+    <div class='athlete'>
+        <input class='athlete' type="text" name="weight" class="input-small" placeholder="170 (i.e. in pounds)"><br />
+        <input class='athlete' type="text" name="height" class="input-small" placeholder="70 (i.e. in inches)"><br />
+    </div>
+
+    <div class='coach'>
+        <input class='coach' type="text" name="salary" class="input-medium" placeholder="50000"><br />
+    </div>
+
+    <button type="submit" class="btn">Register</button>
+</fieldset>
+</form>
+
+</div>
+</div>
+{% endblock content %}
+
+{% block script %}
+<script type='text/javascript'>
+    $(document).ready(function() {
+        $('.coach').hide(); 
+
+        $('#user_type').change(function() {
+            if ($("select option:selected").attr('value') === 'athlete') {
+                $('.coach').hide(); 
+                $('.athlete').show(); 
+            }
+            else {
+                $('.athlete').hide(); 
+                $('.coach').show(); 
+            }
+        });
+    });
+</script>
+{% endblock %}
