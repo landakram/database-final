@@ -110,3 +110,8 @@ def before_request():
 @app.teardown_request
 def teardown_request(exception):
     g.db.close()
+
+
+if __name__ == '__main__':
+    app.run()
+
