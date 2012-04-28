@@ -1,3 +1,5 @@
+from werkzeug.security import generate_password_hash as pw_hash
+
 def user(id, name, email, password):
     print 'INSERT INTO User VALUES (%s, "%s", "%s", "%s");' % (id, name, email, password) 
 
@@ -14,7 +16,7 @@ with open('everyone.txt') as f:
         while True:
             name = f.next().strip()
             email = f.next().strip()
-            pw = f.next().strip()
+            pw = pw_hash(f.next().strip())
             role = f.next().strip()
             user(uid, name, email, pw)
             if role == 'Coach':
