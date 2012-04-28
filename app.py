@@ -69,22 +69,25 @@ def register():
 
     uid = 0
 
+    print user_type
     if user_type == 'athlete':
         weight = float(request.form['weight'])
         height = float(request.form['height'])
 
-        cursor.execute('INSERT INTO User VALUES(%s, %s, %s)', 
+        cursor.execute('INSERT INTO User(name, email, password) VALUES(%s, %s, %s)', 
                     (name, email, generate_password_hash(password)))
         uid = cursor.lastrowid
         cursor.execute('INSERT INTO Athlete VALUES(%s, %s, %s)',
                     (uid, height, weight))
+        print "HELLOOO"
     elif user_type == 'coach':
         salary = float(request.form['salary'])
 
-        cursor.execute('INSERT INTO User VALUES(%s, %s, %s)', 
+        cursor.execute('INSERT INTO User(name, email, password) VALUES(%s, %s, %s)', 
                     (name, email, generate_password_hash(password)))
         uid = cursor.lastrowid
         cursor.execute('INSERT INTO Coach VALUES(%s, %s)', (uid, salary))
+    g.db.commit()
 
     session['user_id'] = uid
     session['user_name'] = name
