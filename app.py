@@ -7,6 +7,7 @@ from functools import wraps
 
 app = Flask(__name__)
 app.config.from_object('settings')
+app.config['DEBUG'] = True
 
 
 # Decorator for view functions. Checks whether there is a user_id in the 
@@ -35,20 +36,21 @@ def login():
     email = request.form['email'] 
     password = request.form['password']
     cursor = g.db.cursor()
-    cursor.execute('SELECT uid, name FROM User WHERE email = %s AND password = %s',
-                   (email, check_password_hash(password)))
+    cursor.execute('SELECT uid, name, password FROM User WHERE email = %s',
+                   (email, ))
     # if one user was found, then this is that user
     if int(cursor.rowcount) == 1:
         user = cursor.fetchone()
-        # fetch uid
-        session['user_id'] = user[0]
-        session['user_name'] = user[1]
-        flash('You were logged in successfully.', 'success')
-        return redirect(url_for('index'))
+        # we check the password against the hash stored in the db
+        if check_password_hash(user[2], password):
+            # fetch uid
+            session['user_id'] = user[0]
+            session['user_name'] = user[1]
+            flash('You were logged in successfully.', 'success')
+            return redirect(url_for('index'))
     # either 0 or more than one (which really shouldn't happen)
-    else:
-        flash('Your email and password wasn\'t found.', 'error')
-        return redirect(url_for('index'))
+    flash('Your email and password wasn\'t found.', 'error')
+    return redirect(url_for('index'))
 
 
 @app.route('/register', methods=['POST'])
@@ -67,22 +69,25 @@ def register():
 
     uid = 0
 
+    print user_type
     if user_type == 'athlete':
         weight = float(request.form['weight'])
         height = float(request.form['height'])
 
-        cursor.execute('INSERT INTO User VALUES(%s, %s, %s)', 
+        cursor.execute('INSERT INTO User(name, email, password) VALUES(%s, %s, %s)', 
                     (name, email, generate_password_hash(password)))
         uid = cursor.lastrowid
         cursor.execute('INSERT INTO Athlete VALUES(%s, %s, %s)',
                     (uid, height, weight))
+        print "HELLOOO"
     elif user_type == 'coach':
         salary = float(request.form['salary'])
 
-        cursor.execute('INSERT INTO User VALUES(%s, %s, %s)', 
+        cursor.execute('INSERT INTO User(name, email, password) VALUES(%s, %s, %s)', 
                     (name, email, generate_password_hash(password)))
         uid = cursor.lastrowid
         cursor.execute('INSERT INTO Coach VALUES(%s, %s)', (uid, salary))
+    g.db.commit()
 
     session['user_id'] = uid
     session['user_name'] = name
@@ -97,6 +102,8 @@ def logout():
         session.pop('user_name')
     except KeyError:
         pass
+    finally:
+        return redirect(url_for('index'))
 
 
 @app.before_request

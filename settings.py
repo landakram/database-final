@@ -1,7 +1,7 @@
 
 # database variables
 DB_HOST = 'localhost'
-DB_NAME = 'markSamSports'
+DB_NAME = 'samMarkSports'
 DB_USER = 'mark'
 DB_PASSWORD = 'hud'
 
