@@ -62,9 +62,12 @@ CREATE TABLE `Sport` (
 
 CREATE TABLE `Workout` (
     wid INTEGER AUTO_INCREMENT NOT NULL,
+    tid INTEGER NOT NULL,
     date_assigned DATETIME,
     uid INTEGER NOT NULL,
     PRIMARY KEY (wid),
+    FOREIGN KEY (tid) REFERENCES Team (tid)
+        ON DELETE NO ACTION,
     FOREIGN KEY (uid) REFERENCES Coach (uid)
         ON DELETE NO ACTION
 );
@@ -143,10 +146,11 @@ CREATE TABLE `does` (
 CREATE TABLE `performance` (
     eid INTEGER,
     uid INTEGER,
-    date_performed DATETIME,
-    reps_performed INTEGER,
+    wid INTEGER,
     max_weight DOUBLE,
-    PRIMARY KEY (eid, uid, date_performed, reps_performed),
+    PRIMARY KEY (eid, uid, wid),
+    FOREIGN KEY (wid) REFERENCES Workout (wid)
+        ON DELETE NO ACTION,
     FOREIGN KEY (eid) REFERENCES Exercise (eid)
         ON DELETE NO ACTION,
     FOREIGN KEY (uid) REFERENCES Athlete (uid)
