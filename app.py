@@ -27,9 +27,72 @@ def index():
     # user is not logged in
     if not session.get('user_id'):
         return render_template('login.html')
-    else:
-        return render_template('index.html')
 
+    uid = session['user_id']
+    if session['user_type'] == 'coach':
+        return redirect(url_for('coach_info', uid=uid))
+    elif session['user_type'] == 'athlete':
+        return redirect(url_for('athlete_info', uid=uid))
+
+@app.route('/coach/<int:uid>')
+@login_required
+def coach_info(uid):
+    cursor = g.db.cursor()
+
+    cursor.execute("""SELECT C.tid, T.name FROM coaches C, Team T
+                    WHERE C.uid=%s AND C.tid=T.tid""", (uid,))
+    teams = cursor.fetchall()
+
+    if uid == session['user_id']:
+        cursor.execute('SELECT salary FROM Coach WHERE uid = %s', (uid,))
+        salary = cursor.fetchone()[0]
+    else:
+        salary = None
+    
+    return render_template('coach.html',salary=salary, teams=teams, uid=uid)
+
+@app.route('/team/<int:tid>')
+@login_required
+def team_info(tid):
+    cursor = g.db.cursor()
+    cursor.execute("""SELECT T.name, T.hometown, S.name 
+                      FROM Team T, Sport S, plays P
+                      WHERE T.tid = %s AND S.sid = P.sid  """, 
+                      (tid,))
+    team = cursor.fetchone()
+    cursor.execute("""SELECT U.uid, M.number, U.name, M.position
+                      FROM User U, member_of M
+                      WHERE M.tid = %s AND M.uid = U.uid
+                      ORDER BY M.number""", (tid,))
+    members = cursor.fetchall()
+
+    cursor.execute('SELECT uid FROM coaches WHERE tid = %s', (tid,)) 
+    uid = cursor.fetchone()[0]
+
+    current_coach = True if uid == session['user_id'] else False
+
+    #cursor.execute("""SELECT wid, date_assigned FROM Workout WHERE uid=%s""", 
+                  #(session['user_id'],))
+
+    return render_template('team.html', team=team, 
+                                        members=members,    
+                                        current_coach=current_coach)
+
+@app.route('/athlete/<int:uid>')
+@login_required
+def athlete_info(uid):
+    cursor = g.db.cursor()
+    # get general info about athlete
+    cursor.execute("""SELECT U.name, A.height, A.weight 
+                      FROM User U, Athlete A 
+                      WHERE U.uid = A.uid AND U.uid = %s""", (uid,))
+    athlete = cursor.fetchone()
+
+    cursor.execute("""SELECT M.tid, T.name FROM member_of M, Team T
+                        WHERE M.uid=%s AND M.tid=T.tid""", (uid,))
+    teams = cursor.fetchall()
+
+    return render_template('athlete.html', athlete=athlete, teams=teams)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -46,6 +109,12 @@ def login():
             # fetch uid
             session['user_id'] = user[0]
             session['user_name'] = user[1]
+            cursor.execute('SELECT salary FROM Coach WHERE uid = %s', (user[0]))
+            # if not a coach, then we have an athlete
+            if int(cursor.rowcount == 0):
+                session['user_type'] = 'athlete'
+            else:
+                session['user_type'] = 'coach'
             flash('You were logged in successfully.', 'success')
             return redirect(url_for('index'))
     # either 0 or more than one (which really shouldn't happen)
@@ -69,7 +138,6 @@ def register():
 
     uid = 0
 
-    print user_type
     if user_type == 'athlete':
         weight = float(request.form['weight'])
         height = float(request.form['height'])
@@ -79,7 +147,6 @@ def register():
         uid = cursor.lastrowid
         cursor.execute('INSERT INTO Athlete VALUES(%s, %s, %s)',
                     (uid, height, weight))
-        print "HELLOOO"
     elif user_type == 'coach':
         salary = float(request.form['salary'])
 
@@ -100,6 +167,7 @@ def logout():
     try:
         session.pop('user_id')
         session.pop('user_name')
+        session.pop('user_type')
     except KeyError:
         pass
     finally:
