@@ -13,7 +13,7 @@ sports = [
 ("Tennis", "Summer")
 ]
 
-position = ["Forward", "Center", "Back", "Left", "Right"]
+position = ["Forward", "Center", "Back", "Left", "Right", "Goalie"]
 
 days = map(str, range(1,31))
 months = ['01','02','03','04','05','06','07','08','09','10','11','12']
@@ -45,8 +45,8 @@ def insert_plays(team_id, sport_id):
     print 'INSERT INTO plays VALUES (%s, %s);' % (sport_id, team_id) 
 
 def insert_member_of(uid, tid, number, pos):
-    print 'INSERT INTO member_of VALUES (%s, %s, %s, "%s");' % (uid, tid,
-                                                                number, pos) 
+    print 'INSERT INTO member_of VALUES (%s, %s, "%s", %s);' % (uid, tid,
+                                                                pos, number) 
 
 def insert_coaches(uid, tid):
     date = '%s-%s-%s' % (choice(years), choice(months), choice(days))
