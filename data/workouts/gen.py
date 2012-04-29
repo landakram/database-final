@@ -49,21 +49,22 @@ def get5Es():
 	return es
 
 def performance(user, date, reps, ex):
-	factor=((user-35) % 15)/3
+	factor=((user-35) % 14)/3
 	max = randint(18,26+factor)*10 - reps*5
 	return inserts5("performance",ex,user,date,reps,max)
 
 lazy=[]
 wid=0
-for i in range(10):
+for tid in range(35):
+	i = tid % 10
 	for j in range(4):
 		wid+=1
 		date = getDate(i,j)
 		f.write(inserts3("Workout", wid, date, i+1))
 		f.write("\n")
-		for k in range(15):
-			uid = i*15 + 36 + k
-			if (randint(1,100) <= 90):
+		for k in range(14):
+			uid = i*14 + 431 + k
+			if (randint(1,100) <= 90) and (uid<=500):
 				f.write(inserts3("does", wid, uid, date))
 				f.write("\n")
 			else:
@@ -73,13 +74,9 @@ for i in range(10):
 			r = randint(3,10)
 			f.write(inserts4("consists_of", wid, es[l], randint(2,4), r))
 			f.write("\n")
-			for m in range(15):
-				uid = i*15 + 36 + m
+			for m in range(14):
+				uid = i*14 + 431 + m
 				if (not (uid in lazy)):
 					f.write(performance(uid, date, r, es[l]))
 					f.write("\n")
 		
-
-		
-
-
