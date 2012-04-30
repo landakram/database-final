@@ -147,6 +147,7 @@ CREATE TABLE `performance` (
     eid INTEGER,
     uid INTEGER,
     wid INTEGER,
+    reps_performed INTEGER,
     max_weight DOUBLE,
     PRIMARY KEY (eid, uid, wid),
     FOREIGN KEY (wid) REFERENCES Workout (wid)
