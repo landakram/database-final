@@ -1,6 +1,6 @@
 from random import randint
 
-f = open('/Users/Sam/courses/dbs/database-final/data/workouts/workouts.sql', 'w')
+f = open('workouts.sql', 'w')
 
 def inserts5(table, a,b,c,d,e):
 	return 'INSERT INTO %s VALUES (%s, %s, %s, %s, %s);' % (table, a, b, c, d, e)
@@ -51,7 +51,7 @@ def get5Es():
 def performance(user, wid, reps, ex):
 	factor=((user-35) % 14)/3
 	max = randint(18,26+factor)*10 - reps*5
-	return inserts4("performance",ex,user,wid,max)
+	return inserts5("performance",ex,user,wid,reps,max)
 
 lazy=[]
 wid=0
