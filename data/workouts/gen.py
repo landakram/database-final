@@ -63,7 +63,7 @@ for tid in range(35):
 		f.write(inserts4("Workout", wid, tid+1, date, i+1))
 		f.write("\n")
 		for k in range(14):
-			uid = i+11 + 35*k
+			uid = tid+11 + 35*k
 			if (randint(1,100) <= 90) and (uid<=500):
 				f.write(inserts3("does", wid, uid, date))
 				f.write("\n")
@@ -75,7 +75,7 @@ for tid in range(35):
 			f.write(inserts4("consists_of", wid, es[l], randint(2,4), r))
 			f.write("\n")
 			for m in range(14):
-				uid =  i+11 + 35*m
+				uid =  tid+11 + 35*m
 				if (not (uid in lazy)):
 					f.write(performance(uid, wid, r, es[l]))
 					f.write("\n")
