@@ -82,7 +82,6 @@ def team_info(tid):
 
     workouts = cursor.fetchall()
 
-
     return render_template('team.html', team=team, 
                                         members=members,    
                                         current_coach=current_coach,
@@ -111,7 +110,23 @@ def workout_info(tid, wid):
 @app.route('/athlete/<int:uid>/workout/<int:wid>')
 @login_required
 def athlete_performance(uid, wid):
-    pass
+    cursor = g.db.cursor()
+    cursor.execute('SELECT U.uid, U.name FROM User U WHERE U.uid = %s', (uid,))
+    user = cursor.fetchone()
+
+    cursor.execute('SELECT date_assigned FROM Workout WHERE wid=%s',(wid,))
+    date = cursor.fetchone()[0]
+
+    cursor.execute('SELECT U.uid, U.name FROM User U WHERE U.uid = %s', (uid,))
+    
+    cursor.execute("""SELECT E.name, P.max_weight
+                      FROM Exercise E, performance P
+                      WHERE P.uid = %s AND P.wid = %s AND E.eid = P.eid""",
+                      (uid, wid))
+    exercises = cursor.fetchall()
+
+    return render_template('performance.html', user=user,
+                           exercises=exercises, date=date)
 
 @app.route('/athlete/<int:uid>')
 @login_required

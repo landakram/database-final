@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class='row'>
+    <div class='span8 offset2'>
+        <div class="page-header">
+            <h1><a href='{{ url_for('athlete_info', uid=user[0]) }}'>{{ user[1] }}</a>'s performance for {{ date.strftime('%D') }}</h1>
+        </div>
+            
+        <table class='table table-striped '>
+            <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Max Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in exercises %}
+                <tr>
+                    <td>{{ e[0] }}</td>
+                    <td>{{ e[1] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
