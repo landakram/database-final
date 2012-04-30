@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class='row'>
+    <div class='span8 offset2'>
+{% include "flashes.html" %}
+{% if salary %}
+<h3>Salary: ${{ salary }}</h3>
+<h1>Your Teams</h1>
+{% endif %}
+
+<ul class="unstyled">
+    {% for team in teams %}
+    <li><h2><a href='{{ url_for('team_info', tid=team[0]) }}'>{{ team[1] }}</a></h2></li>
+    {% endfor %}
+</ul>
+{% endblock %}

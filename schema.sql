@@ -156,3 +156,25 @@ CREATE TABLE `performance` (
     FOREIGN KEY (uid) REFERENCES Athlete (uid)
         ON DELETE NO ACTION
 ); 
+
+DELIMITER |
+CREATE PROCEDURE TeamProgress (
+    IN tid INTEGER,
+    IN wid INTEGER
+)
+BEGIN
+    (SELECT M.uid, A.name, FALSE as completed
+    FROM member_of M, User A
+    WHERE M.tid = tid 
+        AND M.uid = A.uid
+        AND M.uid NOT IN (SELECT D.uid FROM does D WHERE D.wid=wid)
+    )
+    UNION
+    (SELECT M.uid, A.name, TRUE as completed
+    FROM member_of M, User A
+    WHERE M.tid = tid 
+        AND M.uid = A.uid
+        AND M.uid IN (SELECT D.uid FROM does D WHERE D.wid=wid)
+    );
+END
+|

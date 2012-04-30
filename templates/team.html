@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class='row'>
+    <div class='span8 offset2'>
+        <div class='page-header'>
+            <h1>{{ '%s %s' % (team[1], team[0]) }}</h1>
+            <h2>{{ team[2] }}</h2>
+        </div>
+        {% if current_coach %}
+        <p>You coach this team.</p>
+        {% endif %}
+        <table class='table table-striped '>
+            <thead>
+                <tr>
+                    <th>Number</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in members %}
+                <tr>
+                    <td>{{ player[1] }}</td>
+                    <td><a href='{{ url_for('athlete_info', uid=player[0]) }}'>{{ player[2] }}</a></td>
+                    <td>{{ player[3] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if current_coach %}
+        <h1>Recent Workouts</h1>
+            <table class='table table-striped'>
+                <tbody>
+                {% for workout in workouts %}
+                <tr>
+                    <th>
+                        <a href='{{ url_for('workout_info', tid=tid, wid=workout[0]) }}'>
+                            {{ workout[1].strftime('%D') }}
+                        </a> 
+                    </th>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

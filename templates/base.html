@@ -26,14 +26,17 @@
                     <!--</li>-->
                 <!--</ul>-->
                 {% if session.get('user_id') %}
-                <p class="navbar-text pull-right"><a href="{{ url_for('logout') }}">Logout</a></p>
+                <p class="navbar-text pull-right">
+                Hi, {{ session.get('user_name') }}. <a href="{{ url_for('logout') }}">Logout</a></p>
                 {% endif %}
             </div><!--/.nav-collapse -->
         </div>
     </div>
 </div>
 
+<div class="container">
 {% block content %}
 {% endblock content %}
+</div>
 </body>
 </html>

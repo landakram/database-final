@@ -34,6 +34,7 @@ def index():
     elif session['user_type'] == 'athlete':
         return redirect(url_for('athlete_info', uid=uid))
 
+
 @app.route('/coach/<int:uid>')
 @login_required
 def coach_info(uid):
@@ -49,7 +50,8 @@ def coach_info(uid):
     else:
         salary = None
     
-    return render_template('coach.html',salary=salary, teams=teams, uid=uid)
+    return render_template('coach.html', salary=salary, teams=teams, uid=uid)
+
 
 @app.route('/team/<int:tid>')
 @login_required
@@ -71,12 +73,45 @@ def team_info(tid):
 
     current_coach = True if uid == session['user_id'] else False
 
-    #cursor.execute("""SELECT wid, date_assigned FROM Workout WHERE uid=%s""", 
-                  #(session['user_id'],))
+    cursor.execute("""SELECT wid, date_assigned 
+                      FROM Workout 
+                      WHERE uid=%s AND tid=%s
+                      ORDER BY date_assigned DESC
+                      LIMIT 5""", 
+                  (session['user_id'], tid))
+
+    workouts = cursor.fetchall()
+
 
     return render_template('team.html', team=team, 
                                         members=members,    
-                                        current_coach=current_coach)
+                                        current_coach=current_coach,
+                                        workouts=workouts,
+                                        tid=tid)
+
+@app.route('/team/<int:tid>/workout/<int:wid>')
+@login_required
+def workout_info(tid, wid):
+    cursor = g.db.cursor()
+    cursor.execute('SELECT date_assigned FROM Workout WHERE wid=%s',(wid,))
+    date = cursor.fetchall()[0][0]
+    cursor.execute("""SELECT E.eid, E.name, C.sets, C.reps
+                      FROM Exercise E, consists_of C 
+                      WHERE C.wid = %s AND E.eid = C.eid""", (wid,))
+    exercises = cursor.fetchall()
+
+    cursor.callproc("TeamProgress", (tid,wid))
+    members = cursor.fetchall()
+
+    return render_template('workout.html', exercises=exercises, 
+                                           members=members, 
+                                           date=date,
+                                           wid=wid)
+
+@app.route('/athlete/<int:uid>/workout/<int:wid>')
+@login_required
+def athlete_performance(uid, wid):
+    pass
 
 @app.route('/athlete/<int:uid>')
 @login_required
@@ -93,6 +128,7 @@ def athlete_info(uid):
     teams = cursor.fetchall()
 
     return render_template('athlete.html', athlete=athlete, teams=teams)
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -115,7 +151,6 @@ def login():
                 session['user_type'] = 'athlete'
             else:
                 session['user_type'] = 'coach'
-            flash('You were logged in successfully.', 'success')
             return redirect(url_for('index'))
     # either 0 or more than one (which really shouldn't happen)
     flash('Your email and password wasn\'t found.', 'error')
@@ -137,7 +172,6 @@ def register():
         return redirect(url_for('index'))
 
     uid = 0
-
     if user_type == 'athlete':
         weight = float(request.form['weight'])
         height = float(request.form['height'])
