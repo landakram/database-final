@@ -1,6 +1,6 @@
 from random import randint
 
-f = open('/Users/Sam/courses/dbs/database-final/workouts/workouts.sql', 'w')
+f = open('/Users/Sam/courses/dbs/database-final/data/workouts/workouts.sql', 'w')
 
 def inserts5(table, a,b,c,d,e):
 	return 'INSERT INTO %s VALUES (%s, %s, %s, %s, %s);' % (table, a, b, c, d, e)
@@ -48,10 +48,10 @@ def get5Es():
 		es.append(j)
 	return es
 
-def performance(user, date, reps, ex):
+def performance(user, wid, reps, ex):
 	factor=((user-35) % 14)/3
 	max = randint(18,26+factor)*10 - reps*5
-	return inserts5("performance",ex,user,date,reps,max)
+	return inserts4("performance",ex,user,wid,max)
 
 lazy=[]
 wid=0
@@ -60,10 +60,10 @@ for tid in range(35):
 	for j in range(4):
 		wid+=1
 		date = getDate(i,j)
-		f.write(inserts3("Workout", wid, date, i+1))
+		f.write(inserts4("Workout", wid, tid+1, date, i+1))
 		f.write("\n")
 		for k in range(14):
-			uid = i*14 + 431 + k
+			uid = i+11 + 35*k
 			if (randint(1,100) <= 90) and (uid<=500):
 				f.write(inserts3("does", wid, uid, date))
 				f.write("\n")
@@ -75,8 +75,8 @@ for tid in range(35):
 			f.write(inserts4("consists_of", wid, es[l], randint(2,4), r))
 			f.write("\n")
 			for m in range(14):
-				uid = i*14 + 431 + m
+				uid =  i+11 + 35*m
 				if (not (uid in lazy)):
-					f.write(performance(uid, date, r, es[l]))
+					f.write(performance(uid, wid, r, es[l]))
 					f.write("\n")
 		
