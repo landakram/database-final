@@ -1,9 +1,11 @@
 import MySQLdb as mysql
 from flask import (Flask, g, request, session, render_template, redirect, 
-                   url_for, flash)
+                   url_for, flash, jsonify)
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from functools import wraps
+
+from datetime import date
 
 app = Flask(__name__)
 app.config.from_object('settings')
@@ -88,6 +90,51 @@ def team_info(tid):
                                         workouts=workouts,
                                         tid=tid)
 
+@app.route('/team/<int:tid>/workout/create')
+@login_required
+def create_workout(tid):
+    cursor = g.db.cursor()
+    cursor.execute('SELECT uid FROM coaches WHERE tid = %s AND uid=%s', 
+                   (tid, session['user_id'])) 
+    if int(cursor.rowcount) == 0:
+        flash('You don\'t have permission to do that', 'error')
+        return redirect(url_for('team_info', tid=tid))
+
+    cursor.execute('SELECT DISTINCT muscle_group FROM ExerciseMuscles')
+    muscles = cursor.fetchall()
+    print muscles
+
+    return render_template('create.html', muscles=muscles, tid=tid)
+
+@app.route('/team/<int:tid>/workout/submit', methods=['POST'])
+@login_required
+def submit_workout(tid):
+    cursor = g.db.cursor()
+    cursor.execute('SELECT uid FROM coaches WHERE tid = %s AND uid=%s', 
+                   (tid, session['user_id'])) 
+    if int(cursor.rowcount) == 0:
+        return jsonify(error='You don\'t have permission to create a workout for this team')
+    
+    print request.form['workout[0][exercise]']
+
+    cursor.execute('INSERT INTO Workout(tid, date_assigned, uid) VALUES (%s, %s, %s)',
+                    (tid, date.today(), session['user_id']))
+    
+    wid = cursor.lastrowid
+
+    for i in range(len(request.form)/3):
+        cursor.execute('SELECT eid FROM Exercise WHERE name=%s',
+                        (request.form['workout[%d][exercise]'%i]))
+        eid = cursor.fetchone()[0]
+        sets = request.form['workout[%d][sets]'%i]
+        reps = request.form['workout[%d][reps]'%i]
+        cursor.execute('INSERT INTO consists_of VALUES (%s, %s, %s, %s)',
+                        (wid, eid, sets, reps))
+
+    g.db.commit()
+    return jsonify(success=True)
+
+
 @app.route('/team/<int:tid>/workout/<int:wid>')
 @login_required
 def workout_info(tid, wid):
@@ -106,6 +153,19 @@ def workout_info(tid, wid):
                                            members=members, 
                                            date=date,
                                            wid=wid)
+
+@app.route('/exercises')
+def exercises():
+    muscle = request.args.get('muscle')
+    cursor = g.db.cursor()
+    if muscle == 'any':
+        cursor.execute('SELECT name FROM ExerciseMuscles')
+    else:
+        cursor.execute('SELECT name FROM ExerciseMuscles WHERE muscle_group=%s',
+                    (muscle,))
+    e = map(lambda (a,) : a, list(cursor.fetchall()))
+    return jsonify(exercises=e)
+
 
 @app.route('/athlete/<int:uid>/workout/<int:wid>')
 @login_required
@@ -127,6 +187,7 @@ def athlete_performance(uid, wid):
 
     return render_template('performance.html', user=user,
                            exercises=exercises, date=date)
+
 
 @app.route('/athlete/<int:uid>')
 @login_required

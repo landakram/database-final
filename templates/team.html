@@ -7,6 +7,7 @@
             <h1>{{ '%s %s' % (team[1], team[0]) }}</h1>
             <h2>{{ team[2] }}</h2>
         </div>
+        {% include "flashes.html" %}
         {% if current_coach %}
         <p>You coach this team.</p>
         {% endif %}
@@ -30,7 +31,7 @@
         </table>
 
         {% if current_coach %}
-        <h1>Recent Workouts</h1>
+        <h1>Recent Workouts  <a id='create' class='btn btn-success' href='{{ url_for('create_workout', tid=tid) }}'><i class="icon-plus-sign icon-white"></i> Create a workout</a></h1>
             <table class='table table-striped'>
                 <tbody>
                 {% for workout in workouts %}
@@ -48,3 +49,4 @@
     </div>
 </div>
 {% endblock %}
+
