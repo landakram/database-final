@@ -42,7 +42,7 @@ def index():
 def coach_info(uid):
     cursor = g.db.cursor()
 
-    cursor.execute("""SELECT C.tid, T.name FROM coaches C, Team T
+    cursor.execute("""SELECT C.tid, T.school FROM coaches C, Team T
                     WHERE C.uid=%s AND C.tid=T.tid""", (uid,))
     teams = cursor.fetchall()
 
@@ -59,7 +59,7 @@ def coach_info(uid):
 @login_required
 def team_info(tid):
     cursor = g.db.cursor()
-    cursor.execute("""SELECT T.name, T.hometown, S.name 
+    cursor.execute("""SELECT T.school, T.hometown, S.name 
                       FROM Team T, Sport S, plays P
                       WHERE T.tid = %s AND S.sid = P.sid  """, 
                       (tid,))
@@ -218,7 +218,7 @@ def athlete_info(uid):
                       WHERE U.uid = A.uid AND U.uid = %s""", (uid,))
     athlete = cursor.fetchone()
 
-    cursor.execute("""SELECT M.tid, T.name FROM member_of M, Team T
+    cursor.execute("""SELECT M.tid, T.school FROM member_of M, Team T
                         WHERE M.uid=%s AND M.tid=T.tid""", (uid,))
     teams = cursor.fetchall()
 

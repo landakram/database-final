@@ -34,7 +34,7 @@ CREATE TABLE `Athlete` (
 CREATE TABLE `TeamMascot` (
     school VARCHAR(128),
     mascot VARCHAR(128),
-    PRIMARY KEY (name)
+    PRIMARY KEY (school)
 );
 
 CREATE TABLE `Team` (
