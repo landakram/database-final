@@ -1,4 +1,5 @@
 import MySQLdb as mysql
+import datetime
 from flask import (Flask, g, request, session, render_template, redirect, 
                    url_for, flash)
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -128,6 +129,27 @@ def athlete_performance(uid, wid):
     return render_template('performance.html', user=user,
                            exercises=exercises, date=date)
 
+@app.route('/athlete/<int:uid>/performance/<int:wid>')
+@login_required
+def input_performance(uid, wid):
+    cursor = g.db.cursor()
+    cursor.execute('SELECT U.uid, U.name FROM User U WHERE U.uid = %s', (uid,))
+    user = cursor.fetchone()
+
+    cursor.execute('SELECT date_assigned FROM Workout WHERE wid=%s',(wid,))
+    date = cursor.fetchone()[0]
+
+    cursor.execute('SELECT U.uid, U.name FROM User U WHERE U.uid = %s', (uid,))
+    
+    cursor.execute("""SELECT E.name, C.reps, E.eid
+                      FROM Exercise E, consists_of C
+                      WHERE C.wid = %s AND E.eid = C.eid""",
+                      (wid, ))
+    exercises = cursor.fetchall()
+    
+    return render_template('input_performance.html', user=user,
+                           exercises=exercises, date=date, wid=wid)
+
 @app.route('/athlete/<int:uid>')
 @login_required
 def athlete_info(uid):
@@ -142,7 +164,20 @@ def athlete_info(uid):
                         WHERE M.uid=%s AND M.tid=T.tid""", (uid,))
     teams = cursor.fetchall()
 
-    return render_template('athlete.html', athlete=athlete, teams=teams)
+    workouts=[]
+    for team in teams:
+        tid=team[0]
+
+        cursor.execute("""SELECT wid, date_assigned 
+                      FROM Workout 
+                      WHERE tid=%s
+                      ORDER BY date_assigned DESC
+                      LIMIT 5""", 
+                  (tid,))
+        workouts= cursor.fetchall()
+    
+
+    return render_template('athlete.html', athlete=athlete, teams=teams, workouts=workouts)
 
 
 @app.route('/login', methods=['POST'])
@@ -209,6 +244,21 @@ def register():
     session['user_name'] = name
     flash('You were successfully registered and logged in.', 'success')
     return redirect(url_for('index'))
+
+@app.route('/input/<int:wid>', methods=['POST'])
+def input(wid):
+    cursor = g.db.cursor()
+    uid=session['user_id']
+    cursor.execute('SELECT E.eid FROM consists_of E WHERE E.wid=%s',(wid,))
+    eids = cursor.fetchall()
+    for eid in eids:
+        reps=int(request.form['reps%s' % eid])
+        weight=int(request.form['max%s' % eid])
+        cursor.execute('INSERT INTO performance VALUES (%s, %s, %s, %s, %s)', (eid[0], uid, wid, reps, weight))
+    cursor.execute('INSERT INTO does VALUES (%s, %s, %s)', (wid,uid,datetime.datetime.now()))
+    g.db.commit()    
+    flash('Workout data successfully recorded.', 'success')
+    return redirect(url_for('athlete_performance',uid=uid,wid=wid))
 
 
 @app.route('/logout')

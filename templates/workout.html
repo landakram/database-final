@@ -37,6 +37,16 @@
             <tbody>
                 {% for a in members %}
                 <tr>
+		    {%if (not a[2]) and a[0]==session['user_id'] %}
+                    <td><a href='{{ url_for('input_performance', uid=a[0], wid=wid) }}'>{{ a[1] }}</a> </td>
+                    <td>{% if a[2] %}
+                        <span class="label label-success">Complete</span>
+                        {% else %}
+                        <span class="label">Incomplete</span>
+                        {% endif %}
+                    </td>
+		    {% endif %}
+		    {%if not (not a[2] and a[0]==session['user_id']) %}
                     <td><a href='{{ url_for('athlete_performance', uid=a[0], wid=wid) }}'>{{ a[1] }}</a> </td>
                     <td>{% if a[2] %}
                         <span class="label label-success">Complete</span>
@@ -44,6 +54,7 @@
                         <span class="label">Incomplete</span>
                         {% endif %}
                     </td>
+		    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
