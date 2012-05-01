@@ -19,7 +19,7 @@
                 {% for workout in workouts %}
                 <tr>
                     <th>
-                        <a href='{{ url_for('workout_info', tid=team[0], wid=workout[0]) }}'>
+                        <a href='{{ url_for('athlete_performance', uid=uid, wid=workout[0]) }}'>
                             {{ workout[1].strftime('%D') }}
                         </a> 
                     </th>

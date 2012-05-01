@@ -173,41 +173,40 @@ def athlete_performance(uid, wid):
     cursor = g.db.cursor()
     cursor.execute('SELECT U.uid, U.name FROM User U WHERE U.uid = %s', (uid,))
     user = cursor.fetchone()
+    if user[0] == session['user_id']:
+        is_self = True
+    else:
+        is_self = False
 
     cursor.execute('SELECT date_assigned FROM Workout WHERE wid=%s',(wid,))
     date = cursor.fetchone()[0]
 
-    cursor.execute('SELECT U.uid, U.name FROM User U WHERE U.uid = %s', (uid,))
-    
-    cursor.execute("""SELECT E.name, P.max_weight
-                      FROM Exercise E, performance P
-                      WHERE P.uid = %s AND P.wid = %s AND E.eid = P.eid""",
-                      (uid, wid))
-    exercises = cursor.fetchall()
+    cursor.execute('SELECT * FROM does D WHERE D.uid=%s AND D.wid=%s',
+                    (uid,wid))
+    # athlete has not completed workout
+    if cursor.rowcount == 0:
+        completed = False
+        cursor.execute("""SELECT E.name, C.reps, E.eid
+                        FROM Exercise E, consists_of C
+                        WHERE C.wid = %s AND E.eid = C.eid""",
+                        (wid, ))
+        exercises = cursor.fetchall()
+    else: 
+        completed = True
+        cursor.execute("""SELECT E.name, P.max_weight
+                        FROM Exercise E, performance P
+                        WHERE P.uid = %s AND P.wid = %s AND E.eid = P.eid""",
+                        (uid, wid))
+        exercises = cursor.fetchall()
+
+    # get tid for link to teams workout page
+    cursor.execute('SELECT tid FROM Workout WHERE wid=%s', (wid,))
+    tid = cursor.fetchone()[0]
 
     return render_template('performance.html', user=user,
-                           exercises=exercises, date=date)
+                           exercises=exercises, date=date, tid=tid,
+                           wid=wid, is_self=is_self, completed=completed)
 
-@app.route('/athlete/<int:uid>/performance/<int:wid>')
-@login_required
-def input_performance(uid, wid):
-    cursor = g.db.cursor()
-    cursor.execute('SELECT U.uid, U.name FROM User U WHERE U.uid = %s', (uid,))
-    user = cursor.fetchone()
-
-    cursor.execute('SELECT date_assigned FROM Workout WHERE wid=%s',(wid,))
-    date = cursor.fetchone()[0]
-
-    cursor.execute('SELECT U.uid, U.name FROM User U WHERE U.uid = %s', (uid,))
-    
-    cursor.execute("""SELECT E.name, C.reps, E.eid
-                      FROM Exercise E, consists_of C
-                      WHERE C.wid = %s AND E.eid = C.eid""",
-                      (wid, ))
-    exercises = cursor.fetchall()
-    
-    return render_template('input_performance.html', user=user,
-                           exercises=exercises, date=date, wid=wid)
 
 @app.route('/athlete/<int:uid>')
 @login_required
@@ -236,7 +235,11 @@ def athlete_info(uid):
         workouts= cursor.fetchall()
     
 
-    return render_template('athlete.html', athlete=athlete, teams=teams, workouts=workouts)
+    return render_template('athlete.html', 
+                            uid=uid,
+                            athlete=athlete, 
+                            teams=teams, 
+                            workouts=workouts)
 
 
 @app.route('/login', methods=['POST'])
