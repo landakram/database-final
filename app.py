@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from functools import wraps
 
-from datetime import date
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object('settings')
@@ -118,7 +118,7 @@ def submit_workout(tid):
     print request.form['workout[0][exercise]']
 
     cursor.execute('INSERT INTO Workout(tid, date_assigned, uid) VALUES (%s, %s, %s)',
-                    (tid, date.today(), session['user_id']))
+                    (tid, datetime.now(), session['user_id']))
     
     wid = cursor.lastrowid
 
