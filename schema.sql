@@ -32,17 +32,17 @@ CREATE TABLE `Athlete` (
 );
 
 CREATE TABLE `TeamMascot` (
-    name VARCHAR(128),
+    school VARCHAR(128),
     mascot VARCHAR(128),
     PRIMARY KEY (name)
 );
 
 CREATE TABLE `Team` (
     tid INTEGER NOT NULL AUTO_INCREMENT,
-    name VARCHAR(128) NOT NULL,
+    school VARCHAR(128) NOT NULL,
     hometown VARCHAR(128),
     PRIMARY KEY (tid),
-    FOREIGN KEY (name) REFERENCES TeamMascot (name)
+    FOREIGN KEY (school) REFERENCES TeamMascot (school)
         ON DELETE NO ACTION
 );
 
