@@ -6,7 +6,7 @@
         <div class="page-header">
             <h1><a href='{{ url_for('athlete_info', uid=user[0]) }}'>{{ user[1] }}</a>'s performance for {{ date.strftime('%D') }}</h1>
         </div>
-            
+{% if completed %}            
         <table class='table table-striped '>
             <thead>
                 <tr>
@@ -23,6 +23,43 @@
                 {% endfor %}
             </tbody>
         </table>
+{% elif is_self %}
+        <form class='form-horizontal' id="perf_input" action="{{url_for('input', wid=wid)}}" method="post">
+	<fieldset>
+	<table class='table table-striped '>
+            <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Reps Performed</th>
+		    <th>Max Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in exercises %}
+                <tr>
+                    <td>{{ e[0] }}</td>
+                    <td><input type="text" name='reps{{ e[2] }}'
+		      class="input-small" placeholder="Reps"> out of
+		      {{ e[1] }}</td>
+		    <td>
+		      <input type="text" name='max{{ e[2] }}'
+		      class="input-small" placeholder="Max">
+		    </td>
+		    
+                </tr>
+                {% endfor %}
+		<tr>
+		    <td></td>
+		    <td></td>
+		    <td><button type="submit" class="btn">Submit</button></td>
+            </tbody>
+        </table>
+	</fieldset>
+	</form>
+{% else %}
+<p>{{ user[1] }} has not completed this workout yet.</p>
+{% endif %}
+<h4><a href='{{ url_for("workout_info", tid=tid, wid=wid) }}'>See Team Progress</a></h4>
     </div>
 </div>
 {% endblock %}
