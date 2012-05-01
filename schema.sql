@@ -80,7 +80,7 @@ CREATE TABLE `ExerciseMuscles` (
 
 CREATE TABLE `Exercise` (
     eid INTEGER AUTO_INCREMENT NOT NULL,
-    name VARCHAR(128) NOT NULL,
+    name VARCHAR(128) UNIQUE NOT NULL,
     PRIMARY KEY (eid),
     FOREIGN KEY (name) REFERENCES ExerciseMuscles (name)
         ON DELETE NO ACTION
