@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class='row'>
+    <div class='span8 offset2'>
+        <div class='page-header'>
+            <h1>Create Workout</h1>
+        </div>
+
+        <select id='muscles'>
+            {% for muscle in muscles %}
+            <option value="{{ muscle[0] }}">{{ muscle[0] }}</option>
+            {% endfor %}
+            <option value="any">Any</option>
+        </select>
+        <select id='exercises'>
+        </select><br />
+        <input id='sets' type='text' class='input-small' placeholder='sets'>
+        <input id='reps' type='text' class='input-small' placeholder='reps'>
+        <button class='btn btn-primary' id='add'>Add</button>
+
+        <div id='alert' class='alert alert-error'>
+            <a class="close" data-dismiss="alert">×</a>
+            You need to enter sets and reps before adding.
+        </div>
+
+        <table class='table table-striped '>
+            <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
+                </tr>
+            </thead>
+            <tbody id='elist'>
+            </tbody>
+        </table>
+
+        <button class='btn btn-success' id='save'>Save Workout</button>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type='text/javascript'>
+    var workout;
+    $(document).ready(function() {
+        $('#alert').hide();
+
+        workout = new Array();
+
+        var onMuscleChange = function(data) {
+            console.log(data.exercises);
+            $('#exercises').html('');
+            for (var i = 0; i < data.exercises.length; i++) {
+                $('<option/>', {value: data.exercises[i], text: data.exercises[i]}).appendTo('#exercises');
+            }
+            $('#exercises').show();
+        };
+
+        $('#muscles').change(function() {
+            var val = $('#muscles').val();
+            $.get('{{ url_for("exercises") }}', { muscle: val }, onMuscleChange);
+        });
+
+        $('#add').click(function() {
+            var exercise = $('#exercises').val();
+            var sets = $('#sets').val();
+            var reps = $('#reps').val();
+            if (sets === '' || reps === '') {
+                $('#alert').show();    
+                return;
+            }
+            var $tr = $('<tr></tr>');
+            $('<td></td>', {text:exercise}).appendTo($tr);
+            $('<td></td>', {text:sets}).appendTo($tr);
+            $('<td></td>', {text:reps}).appendTo($tr);
+            $tr.appendTo('#elist');
+            workout.push({exercise: exercise, sets:sets, reps:reps});
+            console.log(workout);
+        });
+
+        $('#save').click(function() {
+                $.post('{{ url_for("submit_workout", tid=tid) }}', {workout:workout}, 
+                    function(data) {
+                        if (data.success) {
+                            window.location = '{{ url_for('team_info', tid=tid) }}';
+                        } 
+                });
+        });
+        
+        $('#muscles').change();
+    });
+</script>
+{% endblock %}
