@@ -179,3 +179,11 @@ BEGIN
     );
 END
 |
+
+DELIMITER $$
+CREATE FUNCTION `NextTeamNumber` (tid INTEGER) RETURNS INTEGER
+BEGIN
+    DECLARE last INTEGER;
+    SELECT MAX(number) INTO last FROM member_of WHERE tid=tid;
+    RETURN last+1;
+END$$

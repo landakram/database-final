@@ -38,6 +38,12 @@
         <input class='coach' type="text" name="salary" class="input-medium" placeholder="50000"><br />
     </div>
 
+    <select id="teams" name="team">
+        {% for team in teams %}
+        <option value="{{ team[0] }}">{{ team[1] }} - {{ team[2] }}</option>
+        {% endfor %}
+    </select>
+
     <button type="submit" class="btn">Register</button>
 </fieldset>
 </form>
@@ -61,6 +67,7 @@
                 $('.coach').show(); 
             }
         });
+
     });
 </script>
 {% endblock %}

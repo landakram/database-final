@@ -28,7 +28,12 @@ def login_required(f):
 def index():
     # user is not logged in
     if not session.get('user_id'):
-        return render_template('login.html')
+        cursor = g.db.cursor()
+        cursor.execute("""SELECT T.tid, T.school, S.name FROM Team T, plays P, Sport S
+                        WHERE T.tid = P.tid AND P.sid = S.sid 
+                        ORDER BY T.school""")
+        teams = cursor.fetchall()
+        return render_template('login.html', teams=teams)
 
     uid = session['user_id']
     if session['user_type'] == 'coach':
@@ -64,6 +69,9 @@ def team_info(tid):
                       WHERE T.tid = %s AND S.sid = P.sid  """, 
                       (tid,))
     team = cursor.fetchone()
+    cursor.execute('SELECT mascot FROM TeamMascot WHERE school=%s',
+                    (team[0],))
+    mascot = cursor.fetchone()[0]
     cursor.execute("""SELECT U.uid, M.number, U.name, M.position
                       FROM User U, member_of M
                       WHERE M.tid = %s AND M.uid = U.uid
@@ -71,23 +79,23 @@ def team_info(tid):
     members = cursor.fetchall()
 
     cursor.execute('SELECT uid FROM coaches WHERE tid = %s', (tid,)) 
-    uid = cursor.fetchone()[0]
+    coaches = map(lambda (x,) : x, list(cursor.fetchall()))
 
-    current_coach = True if uid == session['user_id'] else False
+    current_coach = True if session['user_id'] in coaches else False
 
     cursor.execute("""SELECT wid, date_assigned 
                       FROM Workout 
-                      WHERE uid=%s AND tid=%s
+                      WHERE tid=%s
                       ORDER BY date_assigned DESC
                       LIMIT 5""", 
-                  (session['user_id'], tid))
+                  (tid))
 
     workouts = cursor.fetchall()
 
     return render_template('team.html', team=team, 
                                         members=members,    
                                         current_coach=current_coach,
-                                        workouts=workouts,
+                                        workouts=workouts, mascot=mascot,
                                         tid=tid)
 
 @app.route('/team/<int:tid>/workout/create')
@@ -275,6 +283,7 @@ def register():
     email = request.form['email']
     password = request.form['password']
     user_type = request.form['type'].lower()
+    tid = int(request.form['team'])
     cursor = g.db.cursor()
     # first check if user with email address already exists
     cursor.execute('SELECT * FROM User WHERE email = %s', (email,))
@@ -293,6 +302,8 @@ def register():
         uid = cursor.lastrowid
         cursor.execute('INSERT INTO Athlete VALUES(%s, %s, %s)',
                     (uid, height, weight))
+        cursor.execute('INSERT INTO member_of VALUES(%s, %s, "Bench", NextTeamNumber(%s))',
+                        (uid, tid, tid))
     elif user_type == 'coach':
         salary = float(request.form['salary'])
 
@@ -300,10 +311,13 @@ def register():
                     (name, email, generate_password_hash(password)))
         uid = cursor.lastrowid
         cursor.execute('INSERT INTO Coach VALUES(%s, %s)', (uid, salary))
+        cursor.execute('INSERT INTO coaches VALUES(%s, %s, %s)',
+                        (uid, tid, datetime.now()))
     g.db.commit()
 
     session['user_id'] = uid
     session['user_name'] = name
+    session['user_type'] = user_type
     flash('You were successfully registered and logged in.', 'success')
     return redirect(url_for('index'))
 
