@@ -126,5 +126,131 @@ does(*uid, *wid, date_done)
 performance(*uid, *eid, *date_performed, *reps_performed, max_weight)
     \end{verbatim}
 
+\section*{Interesting Features}
+
+We have several interesting features as part of our application that we wanted to illuminate here.
+
+\subsection*{Stored Procedure}
+As a general rule, we tried as much as possible to move logic to the database level, rather than
+the application level. One such example is the stored procedure we used to help calculate,
+given a team id and workout id, which members of a team have completed a workout and which
+have not. Here is the procedure:
+
+\begin{verbatim}
+CREATE PROCEDURE TeamProgress (
+    IN tid INTEGER,
+    IN wid INTEGER
+)
+BEGIN
+    (SELECT M.uid, A.name, FALSE as completed
+    FROM member_of M, User A
+    WHERE M.tid = tid 
+        AND M.uid = A.uid
+        AND M.uid NOT IN (SELECT D.uid FROM does D WHERE D.wid=wid)
+    )
+    UNION
+    (SELECT M.uid, A.name, TRUE as completed
+    FROM member_of M, User A
+    WHERE M.tid = tid 
+        AND M.uid = A.uid
+        AND M.uid IN (SELECT D.uid FROM does D WHERE D.wid=wid)
+    );
+END
+\end{verbatim}
+
+When the procedure is invoked, the resulting set of tuples that is returned 
+looks something like:
+
+\begin{verbatim}
+mysql> CALL TeamProgress(1,1);
++-----+----------------------+-----------+
+| uid | name                 | completed |
++-----+----------------------+-----------+
+| 396 | Sylvester Norman     |         0 |
+|  11 | Christopher Anderson |         1 |
+|  46 | Henry Campbell       |         1 |
+|  81 | Carlos Henderson     |         1 |
+| 116 | Vincent Gibson       |         1 |
+| 151 | Oscar Palmer         |         1 |
+| 186 | Roberto Fox          |         1 |
+| 221 | Ron Morrison         |         1 |
+| 256 | Dwayne Holland       |         1 |
+| 291 | Tracy Holt           |         1 |
+| 326 | Angelo Lyons         |         1 |
+| 361 | Alton Glover         |         1 |
+| 431 | Drew Ballard         |         1 |
+| 466 | Dexter Norton        |         1 |
++-----+----------------------+-----------+
+14 rows in set (0.00 sec)
+\end{verbatim}
+
+This stored procedure provides a simple abstraction for our application code,
+so instead of having to run the query and have complicated looking application code,
+we simply call the stored procedure and act on the result. We use this 
+procedure heavily for the coach workflow; a coach can quickly see which athletes
+on a team have and have not completed a workout.
+
+\subsection*{Integrity Constraints}
+
+Our ER Diagram shows our initial hopes relating to key and participation constraints. 
+We hoped to enforce: a team has at least one athlete, an athlete has at least one team,
+a team plays at least one sport, and a workout is assigned by one and only one coach. 
+
+We implemented the total participation and key constraint on workouts by merging the 
+``assigns'' relationship with the ``Workout'' table. The other constraints proved 
+trickier, however. We were hoping to use triggers to implement the first two 
+constraints and ensure that they hold with checks, but we ran into a problem. 
+When an athlete registers, the integrity constraint would mean he must also join 
+a team. However, in order to join a team, the {\tt memberof} relation requires a 
+foreign key to the ``User'' table. We could not figure out a way around this problem,
+so we omitted the constraint from our schema. 
+
+\subsection*{ISA}
+
+In our ER Diagram, a ``User'' ISA Athlete or a Coach. We implemented this in our
+schema with three separate tables. The ``User'' table contains a uid, name,
+email address, and password. The ``Athlete'' table has a foreign key to ``User''
+on uid, and additional fields for height and weight. The ``Coach'' table also
+has a foreign key on uid and an additional field for salary. With our implementation,
+we allow for Users who are neither Athletes nor Coaches, since we have a separate
+table for Users.
+
+\subsection*{Security Considerations}
+
+Since we were storing passwords in the database, we did not want to store them
+in plaintext, since if our database were compromised, the attacker could then
+impersonate any user. Thus, we hashed and salted our passwords before storing them.
+This was done using a built-in function of the Flask web framework. Thus,
+a password like {\tt test1234}, when hashed and salted, was recoreded in the
+database as {\tt sha1$3EZTz7F7$8b2e64a891662a9c5431b6936c35f5740992a708 }. 
+Hashing itself adds security. However, only hashing leaves the database vulnerable
+to attacks using rainbow tables, prebuilt tables that match a plaintext password
+to its hash. By salting a password, prepending some string to the password before
+it is hashed, we add an additional layer of security that makes it more difficult
+to use rainbow tables (since one would need to construct a rainbow table with the salt
+prepended to every plaintext password, a time consuming process).
+
+\subsection*{Database Tuning}
+
+As we built and tested our application, we realized that we were performing several
+inefficient queries that would benefit from added indexes. In particular, when 
+a coach builds a workout, we built the application so that the coach first chooses
+a muscle group and then the corresponding exercises were shown. We then use
+the exercise name to look up the exercise id from the ``Exercise'' table. 
+In essence, we were actually using the table ``backwards'', using a field
+to find the primary key. Both exercise names and ids are unique.
+
+Our decompositions left ``Exercise'' with a foreign key on $name$ 
+to ``ExerciseMuscles''. We thus added the {\tt UNIQUE} keyword to the $name$
+field in ``ExerciseMuscles'', thus adding an implicit index on the field. This
+means that queries on $name$ will be faster, improving database performance.
+
+We also added the {\tt UNIQUE} keyword to the $email$ field of ``User''. 
+Though it is easiest to refer to users by their ids in urls and queries, a 
+user logs in using his or her email address. Since this is a frequently used
+feature, we wanted to ensure that looking up a $uid$ given an email address
+would be performant. 
+
 \end{document}
+
 
