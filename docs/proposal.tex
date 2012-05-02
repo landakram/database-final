@@ -48,9 +48,9 @@
         April 11 & {\tt schema.sql} & completed \\ 
         \textbf{April 12} & Application scaffolded & completed \\ 
         April 20 & Generated Data & completed \\ 
-        April 23 & Database Security and indexing & in progress \\ 
-        \textbf{April 26} & Front-end for Coach and Players complete & to do \\ 
-        \textbf{May 1} & App tested and feature complete & to do \\ 
+        April 23 & Database Security and indexing & completed \\ 
+        \textbf{April 26} & Front-end for Coach and Players complete & completed  \\ 
+        \textbf{May 1} & App tested and feature complete & completed  \\ 
     \end{tabular}
 
     \section*{Technologies}
@@ -71,11 +71,11 @@ User(*uid, name, email, password)
 Coach(*uid, salary)
 Athlete(*uid, weight, height)
 coaches(*uid, *tid, since)
-Team(*tid, name, mascot)
+Team(*tid, school, hometown, mascot)
 Sport(*sid, name, season)
 plays(*tid, *sid)
 member_of(*uid, *tid, position, number)
-Workout(*wid)
+Workout(*wid, uid, tid, *date_assigned)
 Exercise(*eid, name, muscle_group)
 consists_of(*wid, *eid, sets, reps)
 assigns(*uid, *wid, *date_assigned)
@@ -84,17 +84,17 @@ performance(*uid, *eid, *date_performed, *reps_performed, max_weight)
     \end{verbatim}
 {\tt *} denotes a primary key.
 
-\section{Functional Dependencies}
+\section{Functional Dependencies and Normalization}
 
-We have identified three violations of BCNF in our relational model. 
+We chose to eliminate as much redundancy as possible in our database and thus chose to normalize our relations to BCNF.  We have identified three violations of BCNF in our relational model. 
 
-First, let us consider the Team relation.  We observed that a team with a given name 
-will have a given mascot (for instance, a team named ``The Ducks'' will have a mascot ``Duck'',
-while a team named ``The Lions'' will have a mascot ``Lion''). Thus there is a 
-functional dependency from name to mascot. Thus we decompose Team into two relations:
-Team(tid, name) and TeamMascot(name, mascot). This eliminates the functional dependency
-in Team. For TeamMascot, we have a FD from name $\to$ mascot, but since name is a key,
-the relation is in BCNF. Thus both relations are in BCNF.
+First, let us consider the Team relation.  We observed that a team from a given school 
+will have a given mascot (for instance, teams from ``Pomona-Pitzer'' will have the mascot
+``Sagehen'', while the school ``UCLA'' will have the mascot ``Bruins'' for all its teams). Thus there is 
+a functional dependency from school to mascot. Thus we decompose Team into two relations:
+Team(tid, school, hometown) and TeamMascot(school, mascot). This eliminates the functional
+dependency in Team. For TeamMascot, we have a FD from school $\to$ mascot, but since school
+is a key, the relation is in BCNF. Thus both relations are in BCNF.
 
 Next we consider the Sport relation. We observed that for the sports we deal with, the same 
 sports are always in the same season. Thus there is a functional dependency from a sport's
@@ -111,19 +111,18 @@ User(*uid, name, email, password)
 Coach(*uid, salary)
 Athlete(*uid, weight, height)
 coaches(*uid, *tid, since)
-Team(*tid, name)
-TeamMascot(*name, mascot)
+Team(*tid, school, hometown)
+TeamMascot(*school, mascot)
 Sport(*sid, name)
 SportSeason(*name, season)
 plays(*tid, *sid)
 member_of(*uid, *tid, position, number)
-Workout(*wid)
+Workout(*wid, uid, tid, *date_assigned)
 Exercise(*eid, name)
 ExerciseMuscles(*name, muscle_group)
 consists_of(*wid, *eid, sets, reps)
-assigns(*uid, *wid, *date_assigned)
 does(*uid, *wid, date_done)
-performance(*uid, *eid, *date_performed, *reps_performed, max_weight)
+performance(*uid, *eid, *reps_performed, max_weight)
     \end{verbatim}
 
 \section*{Interesting Features}
@@ -221,7 +220,7 @@ Since we were storing passwords in the database, we did not want to store them
 in plaintext, since if our database were compromised, the attacker could then
 impersonate any user. Thus, we hashed and salted our passwords before storing them.
 This was done using a built-in function of the Flask web framework. Thus,
-a password like {\tt test1234}, when hashed and salted, was recoreded in the
+a password like {\tt test1234}, when hashed and salted, was recorded in the
 database as {\tt sha1$3EZTz7F7$8b2e64a891662a9c5431b6936c35f5740992a708 }. 
 Hashing itself adds security. However, only hashing leaves the database vulnerable
 to attacks using rainbow tables, prebuilt tables that match a plaintext password
@@ -251,6 +250,11 @@ user logs in using his or her email address. Since this is a frequently used
 feature, we wanted to ensure that looking up a $uid$ given an email address
 would be performant. 
 
+\section*{Future Work}
+
+As we said before, we did not implement all of our integrity constraints that we initially had in our ER diagram, so this would be the top priority for the future.  We would either implement this using triggers or by making changes to our schema.  There are also queries that we would want to improve the efficiency of our stored procedure. 
+
+On the application side, we would want to give users more opportunities to input data, especially at registration.  Right now, there is no way to add a new team to the database and when players are added to the database, they do not get to chose their position or number.  Our database could easily handle such uses and we did not have time to set up the interface forms for adding this information to the database.
 \end{document}
 
 
