@@ -84,7 +84,7 @@ performance(*uid, *eid, *date_performed, *reps_performed, max_weight)
     \end{verbatim}
 {\tt *} denotes a primary key.
 
-\section{Functional Dependencies and Normalization}
+\section*{Functional Dependencies and Normalization}
 
 We chose to eliminate as much redundancy as possible in our database and thus chose to normalize our relations to BCNF.  We have identified three violations of BCNF in our relational model. 
 
@@ -200,7 +200,7 @@ We implemented the total participation and key constraint on workouts by merging
 trickier, however. We were hoping to use triggers to implement the first two 
 constraints and ensure that they hold with checks, but we ran into a problem. 
 When an athlete registers, the integrity constraint would mean he must also join 
-a team. However, in order to join a team, the {\tt memberof} relation requires a 
+a team. However, in order to join a team, the \verb,member_of, relation requires a 
 foreign key to the ``User'' table. We could not figure out a way around this problem,
 so we omitted the constraint from our schema. 
 
@@ -221,7 +221,7 @@ in plaintext, since if our database were compromised, the attacker could then
 impersonate any user. Thus, we hashed and salted our passwords before storing them.
 This was done using a built-in function of the Flask web framework. Thus,
 a password like {\tt test1234}, when hashed and salted, was recorded in the
-database as {\tt sha1$3EZTz7F7$8b2e64a891662a9c5431b6936c35f5740992a708 }. 
+database as \verb, sha1$3EZTz7F7$8b2e64a891662a9c5431b6936c35f5740992a708,. 
 Hashing itself adds security. However, only hashing leaves the database vulnerable
 to attacks using rainbow tables, prebuilt tables that match a plaintext password
 to its hash. By salting a password, prepending some string to the password before
@@ -254,7 +254,106 @@ would be performant.
 
 As we said before, we did not implement all of our integrity constraints that we initially had in our ER diagram, so this would be the top priority for the future.  We would either implement this using triggers or by making changes to our schema.  There are also queries that we would want to improve the efficiency of our stored procedure. 
 
-On the application side, we would want to give users more opportunities to input data, especially at registration.  Right now, there is no way to add a new team to the database and when players are added to the database, they do not get to chose their position or number.  Our database could easily handle such uses and we did not have time to set up the interface forms for adding this information to the database.
+On the application side, we would want to give users more opportunities to input data, especially at registration.  Right now, there is no way to add a new team to the database and when players are added to the database, they do not get to choose their position or number.  Our database could easily handle such uses and we did not have time to set up the interface forms for adding this information to the database.
+
+
+\section*{Documentation}
+
+We have documented our code in the {\tt README} file, but we also wanted to add
+those instructions here for posterity. 
+
+\subsection*{Installation}
+
+We assume that {\tt mysql} and {\tt >= python 2.6} are already installed on a 
+OS X system. We tested our setup with both Lion and Snow Leopard. 
+
+\begin{enumerate}
+    \item
+        Get {\tt pip}:
+        \begin{verbatim}
+        $ sudo easy_install pip
+        \end{verbatim}
+
+    \item
+        Get {\tt virtualenv}:
+        \begin{verbatim}
+        $ sudo pip install virtualenv
+        \end{verbatim}
+
+    \item
+        Get {\tt virtualenvwrapper}. It makes using {\tt virtualenv} easier:
+        \begin{verbatim}
+        $ sudo pip install virtualenvwrapper
+        \end{verbatim}
+
+    \item
+        Add this to your {\tt .bashrc} or run in your terminal:
+        \begin{verbatim}
+        source /usr/local/bin/virtualenvwrapper.sh
+        \end{verbatim}
+
+    \item 
+        In the terminal, make a `virtualenv` for this project:
+        \begin{verbatim}
+        $ mkvirtualenv database-final
+        \end{verbatim}
+
+    \item 
+        You should automatically be working in the environment. In your shell,
+you should see something like:
+        \begin{verbatim}
+        (database-final) $ 
+        \end{verbatim}
+        If you don't, then you can enter a virtual environment by running:
+        \begin{verbatim}
+        $ workon database-final
+        \end{verbatim}
+        ``database-final'' is just the name of the virtualenv you created.
+
+    \item To install the required dependencies for this project in one fell swoop,
+        {\tt cd} to the project root and then run:
+        \begin{verbatim}
+        (database-final) $ pip install -r requirements.txt
+        \end{verbatim}
+
+    \item Now, let's populate our database. In the {\tt data} folder, there 
+        is a file called {\tt all.sql}, which containts both the schema and 
+        all generated data we used. In the project root:
+        \begin{verbatim}
+        (database-final) $ cd data
+        (database-final) $ mysql
+        mysql> source all.sql
+        \end{verbatim}
+
+    \item The database should now be populated. Now back in the project root,  run the server:
+        \begin{verbatim}
+        (database-final) $ python app.py
+        * Running on http://127.0.0.1:5000/
+        \end{verbatim}
+
+    The server should now be running on port 5000.
+\end{enumerate}
+
+
+\subsection*{Overview of Included Files}
+
+In the project root, we have a {\tt README} with instructions for setting up the server. 
+The actual server code is contained in {\tt app.py}. Settings for the server, including
+the database name, host, username, and password are in {\tt settings.py}. 
+
+We also have several folders. {\tt static} and {\tt templates} are part of the server.
+{\tt static} contains static resources like images, javascript code, and css. For our
+server, we used a UI framework called \href{http://twitter.github.com/bootstrap/}{Twitter Boostrap}. 
+The {\tt templates} folder contains various html templates used by our server. Flask
+templates are similar to JSPs, except that most of the application logic is done in {\tt app.py}.
+Variables can be passed to templates and templates have limited control flow features like
+{\tt for} loops and {\tt if} statements. 
+
+The {\tt data} folder contains various scripts and text files we used for generating
+our data. We have concatenated the result of running all the scripts into {\tt all.sql},
+but they are available for your perusal. The {\tt docs} folder contains our final
+write-up, progress reports, and other documentation, like our ER diagram. 
+
 \end{document}
 
 
